@@ -3,14 +3,37 @@
 		<title>Joypad.js Demo</title>
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
 		<script src="Joypad.js"></script>
-	</head>
-	<body>
+		<style>
+		body {
+			margin: 64px
+		}
+		h1, h2, p {
+			font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol"
+		}
+		</style>
 		<script>
+			JOYPAD.addInput({
+				Keyboard: JOYPAD.KEYBOARD.SPACE,
+				onDown: function() {
+					$( "#spaceBarState" ).text( "Down" );
+				},
+				onHold: function() {
+					$( "#spaceBarState" ).text( "Held" );
+				},
+				onUp: function() {
+					$( "#spaceBarState" ).text( "Up" );
+				}
+			});
 			(function(){
-			    $( "#keysDown" ).text( JOYPAD.keysDown );
+			    $( "#keysDown" ).text( JOYPAD.keysDown.toString().replace(/,/g, ', ') );
 			    setTimeout( arguments.callee, 100 );
 			})();
 		</script>
+	</head>
+	<body>
+		<h1>Joypad.js</h1>
+		<h2>Spacebar state:</h2>
+		<p id="spaceBarState">Up</p>
 		<h2>Keys being pressed:</h2>
 		<p id="keysDown"></p>
 	</body>
