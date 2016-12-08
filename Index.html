@@ -1,0 +1,17 @@
+<html>
+	<head>
+		<title>Joypad.js Demo</title>
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.1.1/jquery.min.js"></script>
+		<script src="Joypad.js"></script>
+	</head>
+	<body>
+		<script>
+			(function(){
+			    $( "#keysDown" ).text( JOYPAD.keysDown );
+			    setTimeout( arguments.callee, 100 );
+			})();
+		</script>
+		<h2>Keys being pressed:</h2>
+		<p id="keysDown"></p>
+	</body>
+</html>
