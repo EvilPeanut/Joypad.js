@@ -18,29 +18,13 @@ JOYPAD.isKeyDown = function ( keyType ) {
 }
 
 $( document ).keydown(function( event ) {
-	for (key in JOYPAD.KEYBOARD)
-	{
-		if ( JOYPAD.KEYBOARD[ key ] == event.which ) {
-			if ( JOYPAD.keysDown.indexOf( event.which ) == -1 ) {
-				JOYPAD.keysDown.push( JOYPAD.KEYBOARD[ key ] );
-			}
-			return;
-		}
+	if ( !JOYPAD.isKeyDown( event.which ) ) {
+		JOYPAD.keysDown.push( event.which );
 	}
-
-	console.log( "Keyboard code", event.which, "is not supported" );
 });
 
 $( document ).keyup(function( event ) {
-	for (key in JOYPAD.KEYBOARD)
-	{
-		if ( JOYPAD.KEYBOARD[ key ] == event.which ) {
-			JOYPAD.keysDown.splice( key );
-			return;
-		}
-	}
-
-	console.log( "Keyboard code", event.which, "is not supported" );
+	JOYPAD.keysDown.splice( JOYPAD.keysDown.indexOf( event.which ), 1 );
 });
 
 JOYPAD.KEYBOARD = {
