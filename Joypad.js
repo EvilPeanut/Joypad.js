@@ -3,10 +3,22 @@
  */
 var JOYPAD = {};
 
+JOYPAD.options = {
+	pollFrequency : 100
+};
+
 JOYPAD.keysDown = [];
 
-JOYPAD.addInput = function () {
+JOYPAD.downEvents = {};
+JOYPAD.holdEvents = {};
+JOYPAD.upEvents = {};
 
+JOYPAD.addInput = function ( options ) {
+	if ( options.Keyboard ) {
+		if ( options.onDown ) JOYPAD.downEvents[ options.Keyboard ] = options.onDown;
+		if ( options.onHold ) JOYPAD.holdEvents[ options.Keyboard ] = options.onHold;
+		if ( options.onUp ) JOYPAD.upEvents[ options.Keyboard ] = options.onUp;
+	}
 }
 
 JOYPAD.mapInput = function () {
@@ -20,14 +32,28 @@ JOYPAD.isKeyDown = function ( keyType ) {
 $( document ).keydown(function( event ) {
 	if ( !JOYPAD.isKeyDown( event.which ) ) {
 		JOYPAD.keysDown.push( event.which );
+		if ( event.which in JOYPAD.downEvents ) JOYPAD.downEvents[ event.which ]( 1 );
 	}
 });
 
 $( document ).keyup(function( event ) {
 	JOYPAD.keysDown.splice( JOYPAD.keysDown.indexOf( event.which ), 1 );
+	if ( event.which in JOYPAD.upEvents ) JOYPAD.upEvents[ event.which ]();
 });
 
+(function(){
+    for ( keyIndex in JOYPAD.keysDown ) {
+    	var keyCode = JOYPAD.keysDown[ keyIndex ];
+    	if ( keyCode in JOYPAD.holdEvents ) JOYPAD.holdEvents[ keyCode ]();
+    }
+    setTimeout( arguments.callee, JOYPAD.options.pollFrequency );
+})();
+
 $( window ).blur(function() {
+	for ( keyIndex in JOYPAD.keysDown ) {
+    	var keyCode = JOYPAD.keysDown[ keyIndex ];
+    	if ( keyCode in JOYPAD.upEvents ) JOYPAD.upEvents[ keyCode ]();
+    }
 	JOYPAD.keysDown = [];
 });
 
