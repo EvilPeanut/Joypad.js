@@ -27,6 +27,10 @@ $( document ).keyup(function( event ) {
 	JOYPAD.keysDown.splice( JOYPAD.keysDown.indexOf( event.which ), 1 );
 });
 
+$( window ).blur(function() {
+	JOYPAD.keysDown = [];
+});
+
 JOYPAD.KEYBOARD = {
 	BACKSPACE : 8,
 	TAB : 9,
