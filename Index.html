@@ -14,6 +14,7 @@
 		<script>
 			JOYPAD.addInput({
 				Keyboard: JOYPAD.KEYBOARD.SPACE,
+				Xbox: JOYPAD.XBOX.A,
 				onDown: function() {
 					$( "#spaceBarState" ).text( "Down" );
 				},
@@ -22,6 +23,42 @@
 				},
 				onUp: function() {
 					$( "#spaceBarState" ).text( "Up" );
+				}
+			});
+			JOYPAD.addInput({
+				Xbox: JOYPAD.XBOX.LEFT_THUMB_LEFT,
+				onHold: function( intensity ) {
+					$( "#leftThumbLeft" ).text( intensity );
+				},
+				onUp: function() {
+					$( "#leftThumbLeft" ).text( 0 );
+				}
+			});
+			JOYPAD.addInput({
+				Xbox: JOYPAD.XBOX.LEFT_THUMB_RIGHT,
+				onHold: function( intensity ) {
+					$( "#leftThumbRight" ).text( intensity );
+				},
+				onUp: function() {
+					$( "#leftThumbRight" ).text( 0 );
+				}
+			});
+			JOYPAD.addInput({
+				Xbox: JOYPAD.XBOX.LEFT_THUMB_UP,
+				onHold: function( intensity ) {
+					$( "#leftThumbUp" ).text( intensity );
+				},
+				onUp: function() {
+					$( "#leftThumbUp" ).text( 0 );
+				}
+			});
+			JOYPAD.addInput({
+				Xbox: JOYPAD.XBOX.LEFT_THUMB_DOWN,
+				onHold: function( intensity ) {
+					$( "#leftThumbDown" ).text( intensity );
+				},
+				onUp: function() {
+					$( "#leftThumbDown" ).text( 0 );
 				}
 			});
 			(function(){
@@ -34,6 +71,14 @@
 		<h1>Joypad.js</h1>
 		<h2>Spacebar state:</h2>
 		<p id="spaceBarState">Up</p>
+		<h2>XBOX Left thumb left:</h2>
+		<p id="leftThumbLeft">0</p>
+		<h2>XBOX Left thumb right:</h2>
+		<p id="leftThumbRight">0</p>
+		<h2>XBOX Left thumb up:</h2>
+		<p id="leftThumbUp">0</p>
+		<h2>XBOX Left thumb down:</h2>
+		<p id="leftThumbDown">0</p>
 		<h2>Keys being pressed:</h2>
 		<p id="keysDown"></p>
 	</body>

@@ -4,7 +4,7 @@
 var JOYPAD = {};
 
 JOYPAD.options = {
-	pollFrequency : 100
+	pollFrequency : 1000 / 60
 };
 
 JOYPAD.keysDown = [];
@@ -19,16 +19,20 @@ JOYPAD.addInput = function ( options ) {
 		if ( options.onHold ) JOYPAD.holdEvents[ options.Keyboard ] = options.onHold;
 		if ( options.onUp ) JOYPAD.upEvents[ options.Keyboard ] = options.onUp;
 	}
-}
-
-JOYPAD.mapInput = function () {
-
+	if ( options.Xbox ) {
+		if ( options.onDown ) JOYPAD.downEvents[ options.Xbox ] = options.onDown;
+		if ( options.onHold ) JOYPAD.holdEvents[ options.Xbox ] = options.onHold;
+		if ( options.onUp ) JOYPAD.upEvents[ options.Xbox ] = options.onUp;
+	}
 }
 
 JOYPAD.isKeyDown = function ( keyType ) {
 	return JOYPAD.keysDown.indexOf( keyType ) != -1;
 }
 
+//
+// Keyboard input
+//
 $( document ).keydown(function( event ) {
 	if ( !JOYPAD.isKeyDown( event.which ) ) {
 		JOYPAD.keysDown.push( event.which );
@@ -57,6 +61,77 @@ $( window ).blur(function() {
 	JOYPAD.keysDown = [];
 });
 
+//
+// Gamepad input
+//
+setInterval(function() {
+	var gamepads = navigator.getGamepads();
+	for (var i = 0; i < gamepads.length; i++) {
+		var gamepad = gamepads[i];
+
+		if (gamepad == undefined) {
+			continue;
+		}
+
+		for (var buttonIndex = 0; buttonIndex < gamepad.buttons.length; buttonIndex++) {
+			var button = gamepad.buttons[buttonIndex];
+			var which = buttonIndex + 1000;
+
+			if (button.pressed) {
+				if ( !JOYPAD.isKeyDown( which ) ) {
+					JOYPAD.keysDown.push( which );
+					if ( which in JOYPAD.downEvents ) JOYPAD.downEvents[ which ]( 1 );
+				} else {
+					if ( which in JOYPAD.holdEvents ) JOYPAD.holdEvents[ which ]( 1 );
+				}
+			} else if ( JOYPAD.isKeyDown( which ) ) {
+				JOYPAD.keysDown.splice( JOYPAD.keysDown.indexOf( which ), 1 );
+				if ( which in JOYPAD.upEvents ) JOYPAD.upEvents[ which ]();
+			}
+		}
+
+		for (var axesIndex = 0; axesIndex < gamepad.axes.length; axesIndex++) {
+			var axe = gamepad.axes[axesIndex];
+			var which = (axesIndex * 2) + 1017;
+			var upperWhich = which + 1;
+
+			if (axe < 0) {
+				axe = Math.abs( axe );
+				if ( !JOYPAD.isKeyDown( which ) ) {
+					JOYPAD.keysDown.push( which );
+					if ( which in JOYPAD.downEvents ) JOYPAD.downEvents[ which ]( axe );
+				} else {
+					if ( which in JOYPAD.holdEvents ) JOYPAD.holdEvents[ which ]( axe );
+				}
+				if ( JOYPAD.isKeyDown( upperWhich ) ) {
+					JOYPAD.keysDown.splice( JOYPAD.keysDown.indexOf( upperWhich ), 1 );
+					if ( upperWhich in JOYPAD.upEvents ) JOYPAD.upEvents[ upperWhich ]();
+				}
+			} else if (axe > 0) {
+				if ( !JOYPAD.isKeyDown( upperWhich ) ) {
+					JOYPAD.keysDown.push( upperWhich );
+					if ( upperWhich in JOYPAD.downEvents ) JOYPAD.downEvents[ upperWhich ]( axe );
+				} else {
+					if ( upperWhich in JOYPAD.holdEvents ) JOYPAD.holdEvents[ upperWhich ]( axe );
+				}
+				if ( JOYPAD.isKeyDown( which ) ) {
+					JOYPAD.keysDown.splice( JOYPAD.keysDown.indexOf( which ), 1 );
+					if ( which in JOYPAD.upEvents ) JOYPAD.upEvents[ which ]();
+				}
+			} else if ( JOYPAD.isKeyDown( which ) ) {
+				JOYPAD.keysDown.splice( JOYPAD.keysDown.indexOf( which ), 1 );
+				if ( which in JOYPAD.upEvents ) JOYPAD.upEvents[ which ]();
+			} else if ( JOYPAD.isKeyDown( upperWhich ) ) {
+				JOYPAD.keysDown.splice( JOYPAD.keysDown.indexOf( upperWhich ), 1 );
+				if ( upperWhich in JOYPAD.upEvents ) JOYPAD.upEvents[ upperWhich ]();
+			}
+		}
+	}
+}, JOYPAD.options.pollFrequency);
+
+//
+// Enums
+//
 JOYPAD.KEYBOARD = {
 	BACKSPACE : 8,
 	TAB : 9,
@@ -123,5 +198,29 @@ JOYPAD.KEYBOARD = {
 }
 
 JOYPAD.XBOX = {
-
+	A : 1000,
+	B : 1001,
+	X : 1002,
+	Y : 1003,
+	LB : 1004,
+	RB : 1005,
+	LT : 1006,
+	RT : 1007,
+	BACK : 1008,
+	START : 1009,
+	LEFT_THUMB_BUTTON : 1010,
+	RIGHT_THUMB_BUTTON : 1011,
+	DPAD_UP : 1012,
+	DPAD_DOWN : 1013,
+	DPAD_LEFT : 1014,
+	DPAD_RIGHT : 1015,
+	SYSTEM : 1016,
+	LEFT_THUMB_LEFT : 1017,
+	LEFT_THUMB_RIGHT : 1018,
+	LEFT_THUMB_UP : 1019,
+	LEFT_THUMB_DOWN : 1020,
+	RIGHT_THUMB_LEFT : 1021,
+	RIGHT_THUMB_RIGHT : 1022,
+	RIGHT_THUMB_UP : 1023,
+	RIGHT_THUMB_DOWN : 1024
 }
