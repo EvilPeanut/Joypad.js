@@ -4,6 +4,7 @@
 var JOYPAD = {};
 
 JOYPAD.options = {
+	autoUpdate : true,
 	pollFrequency : 1000 / 60
 };
 
@@ -14,15 +15,17 @@ JOYPAD.holdEvents = {};
 JOYPAD.upEvents = {};
 
 JOYPAD.addInput = function ( options ) {
-	if ( options.Keyboard ) {
-		if ( options.onDown ) JOYPAD.downEvents[ options.Keyboard ] = options.onDown;
-		if ( options.onHold ) JOYPAD.holdEvents[ options.Keyboard ] = options.onHold;
-		if ( options.onUp ) JOYPAD.upEvents[ options.Keyboard ] = options.onUp;
+	if ( typeof options.input == "number" ) {
+		options.input = [ options.input ];
 	}
-	if ( options.Xbox ) {
-		if ( options.onDown ) JOYPAD.downEvents[ options.Xbox ] = options.onDown;
-		if ( options.onHold ) JOYPAD.holdEvents[ options.Xbox ] = options.onHold;
-		if ( options.onUp ) JOYPAD.upEvents[ options.Xbox ] = options.onUp;
+
+	for (index = 0; index < options.input.length; index++) {
+		if ( options.onDown ) {
+			JOYPAD.downEvents[ options.input[ index ] ] = options.onDown;
+			if ( options.holdIsDownEvent ) JOYPAD.holdEvents[ options.input[ index ] ] = options.onDown;
+		}
+		if ( options.onHold ) JOYPAD.holdEvents[ options.input[ index ] ] = options.onHold;
+		if ( options.onUp ) JOYPAD.upEvents[ options.input[ index ] ] = options.onUp;
 	}
 }
 
@@ -31,29 +34,29 @@ JOYPAD.isKeyDown = function ( keyType ) {
 }
 
 //
-// Keyboard input
+// Event listeners
 //
-$( document ).keydown(function( event ) {
+document.addEventListener("keydown", function(event) {
 	if ( !JOYPAD.isKeyDown( event.which ) ) {
+		if ( event.which in JOYPAD.downEvents ) {
+			if ( JOYPAD.downEvents[ event.which ]( 1 ) ) {
+				event.preventDefault();
+				event.stopPropagation();
+			}
+		}
 		JOYPAD.keysDown.push( event.which );
-		if ( event.which in JOYPAD.downEvents ) JOYPAD.downEvents[ event.which ]( 1 );
+	} else {
+		event.preventDefault();
+		event.stopPropagation();
 	}
-});
+}, false);
 
-$( document ).keyup(function( event ) {
+document.addEventListener("keyup", function(event) {
 	JOYPAD.keysDown.splice( JOYPAD.keysDown.indexOf( event.which ), 1 );
 	if ( event.which in JOYPAD.upEvents ) JOYPAD.upEvents[ event.which ]();
-});
+}, false);
 
-(function(){
-    for ( keyIndex in JOYPAD.keysDown ) {
-    	var keyCode = JOYPAD.keysDown[ keyIndex ];
-    	if ( keyCode in JOYPAD.holdEvents ) JOYPAD.holdEvents[ keyCode ]();
-    }
-    setTimeout( arguments.callee, JOYPAD.options.pollFrequency );
-})();
-
-$( window ).blur(function() {
+window.addEventListener('blur', function() {
 	for ( keyIndex in JOYPAD.keysDown ) {
     	var keyCode = JOYPAD.keysDown[ keyIndex ];
     	if ( keyCode in JOYPAD.upEvents ) JOYPAD.upEvents[ keyCode ]();
@@ -62,10 +65,27 @@ $( window ).blur(function() {
 });
 
 //
-// Gamepad input
+// Update loop
 //
-setInterval(function() {
-	var gamepads = navigator.getGamepads();
+JOYPAD.oldFrameTime = Date.now();
+JOYPAD.deltaTime = 0;
+
+JOYPAD.update = function () {
+	JOYPAD.deltaTime = (Date.now() - JOYPAD.oldFrameTime) / 1000;
+	JOYPAD.oldFrameTime = Date.now();
+
+	//
+	// Keyboard input
+	//
+	for ( keyIndex in JOYPAD.keysDown ) {
+    	var keyCode = JOYPAD.keysDown[ keyIndex ];
+    	if ( keyCode in JOYPAD.holdEvents ) JOYPAD.holdEvents[ keyCode ]( 1 );
+    }
+
+    //
+	// Gamepad input
+	//
+    var gamepads = navigator.getGamepads();
 	for (var i = 0; i < gamepads.length; i++) {
 		var gamepad = gamepads[i];
 
@@ -127,7 +147,13 @@ setInterval(function() {
 			}
 		}
 	}
-}, JOYPAD.options.pollFrequency);
+
+    if ( JOYPAD.options.autoUpdate ) {
+    	setTimeout( arguments.callee, JOYPAD.options.pollFrequency );
+    }
+}
+
+JOYPAD.update();
 
 //
 // Enums

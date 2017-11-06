@@ -13,8 +13,7 @@
 		</style>
 		<script>
 			JOYPAD.addInput({
-				Keyboard: JOYPAD.KEYBOARD.SPACE,
-				Xbox: JOYPAD.XBOX.A,
+				input: [JOYPAD.KEYBOARD.SPACE, JOYPAD.XBOX.A],
 				onDown: function() {
 					$( "#spaceBarState" ).text( "Down" );
 				},
@@ -26,7 +25,7 @@
 				}
 			});
 			JOYPAD.addInput({
-				Xbox: JOYPAD.XBOX.LEFT_THUMB_LEFT,
+				input: JOYPAD.XBOX.LEFT_THUMB_LEFT,
 				onHold: function( intensity ) {
 					$( "#leftThumbLeft" ).text( intensity );
 				},
@@ -35,7 +34,7 @@
 				}
 			});
 			JOYPAD.addInput({
-				Xbox: JOYPAD.XBOX.LEFT_THUMB_RIGHT,
+				input: JOYPAD.XBOX.LEFT_THUMB_RIGHT,
 				onHold: function( intensity ) {
 					$( "#leftThumbRight" ).text( intensity );
 				},
@@ -44,7 +43,7 @@
 				}
 			});
 			JOYPAD.addInput({
-				Xbox: JOYPAD.XBOX.LEFT_THUMB_UP,
+				input: JOYPAD.XBOX.LEFT_THUMB_UP,
 				onHold: function( intensity ) {
 					$( "#leftThumbUp" ).text( intensity );
 				},
@@ -53,7 +52,7 @@
 				}
 			});
 			JOYPAD.addInput({
-				Xbox: JOYPAD.XBOX.LEFT_THUMB_DOWN,
+				input: JOYPAD.XBOX.LEFT_THUMB_DOWN,
 				onHold: function( intensity ) {
 					$( "#leftThumbDown" ).text( intensity );
 				},
